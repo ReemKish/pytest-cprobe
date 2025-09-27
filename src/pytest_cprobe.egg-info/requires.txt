@@ -1,0 +1,8 @@
+pytest>=6.0.0
+
+[dev]
+pytest
+pytest-cov
+black
+flake8
+mypy

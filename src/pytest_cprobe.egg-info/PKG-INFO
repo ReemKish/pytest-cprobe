@@ -1,0 +1,35 @@
+Metadata-Version: 2.4
+Name: pytest-cprobe
+Version: 0.1.0
+Summary: A pytest plugin for testing C code — compile, run, call functions via ctypes, enable sanitizers, and analyze crashes with coredump and gdb.
+Author: pytest-cprobe contributors
+License: MIT
+Project-URL: Homepage, https://github.com/ReemKish/pytest-cprobe
+Project-URL: Repository, https://github.com/ReemKish/pytest-cprobe
+Project-URL: Issues, https://github.com/ReemKish/pytest-cprobe/issues
+Classifier: Development Status :: 3 - Alpha
+Classifier: Framework :: Pytest
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: pytest>=6.0.0
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-cov; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+
+# pytest-cprobe
+A pytest plugin for testing C code — compile, run, call functions via ctypes, enable sanitizers, and analyze crashes with coredump and gdb.

@@ -1,0 +1,2 @@
+[pytest11]
+cprobe = pytest_cprobe.plugin
