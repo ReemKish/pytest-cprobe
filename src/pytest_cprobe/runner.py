@@ -21,7 +21,7 @@ class RunnerError(Exception):
 
 class CRunner:
     """Runner for compiled C programs."""
-    
+
     def __init__(
         self,
         work_dir: Optional[Path] = None,
@@ -31,11 +31,11 @@ class CRunner:
         self.work_dir = work_dir or Path(tempfile.mkdtemp())
         self.timeout = timeout
         self.capture_core = capture_core
-        
+
         # Enable core dumps if requested
         if capture_core:
             self._enable_core_dumps()
-    
+
     def _enable_core_dumps(self) -> None:
         """Enable core dump generation."""
         try:
@@ -44,7 +44,7 @@ class CRunner:
         except (OSError, ValueError):
             # Some systems may not allow this
             pass
-    
+
     def run(
         self,
         executable: Path,
@@ -57,34 +57,34 @@ class CRunner:
         """Run an executable and return the result."""
         if not executable.exists():
             raise RunnerError(f"Executable {executable} does not exist")
-        
+
         if not executable.is_file():
             raise RunnerError(f"Path {executable} is not a file")
-        
+
         # Make sure executable has execute permissions
         executable.chmod(0o755)
-        
+
         cmd = [str(executable)]
         if args:
             cmd.extend(args)
-        
+
         # Set up environment
         run_env = os.environ.copy()
         if env:
             run_env.update(env)
-        
+
         # Add sanitizer environment variables
         if sanitizer_config:
             sanitizer_env = sanitizer_config.get_runtime_env()
             run_env.update(sanitizer_env)
-        
+
         # Set core dump pattern to work directory if capturing cores
         if self.capture_core:
             run_env["PYTEST_CPROBE_WORK_DIR"] = str(self.work_dir)
-        
+
         # Use provided timeout or instance timeout
         actual_timeout = timeout if timeout is not None else self.timeout
-        
+
         try:
             result = subprocess.run(
                 cmd,
@@ -95,25 +95,25 @@ class CRunner:
                 timeout=actual_timeout,
                 env=run_env
             )
-            
+
             # Check for core dump
             if result.returncode < 0:
                 # Process was terminated by signal
                 signal_num = abs(result.returncode)
                 result.signal_name = signal.Signals(signal_num).name if signal_num in signal.Signals._value2member_map_ else f"SIG{signal_num}"
-                
+
                 # Look for core dump
                 core_file = self._find_core_dump(executable.name)
                 if core_file:
                     result.core_file = core_file
-            
+
             return result
-            
+
         except subprocess.TimeoutExpired as e:
             raise RunnerError(f"Program execution timed out after {actual_timeout} seconds") from e
         except subprocess.SubprocessError as e:
             raise RunnerError(f"Failed to run program: {e}") from e
-    
+
     def run_with_input_file(
         self,
         executable: Path,
@@ -124,10 +124,10 @@ class CRunner:
         """Run executable with input from a file."""
         if not input_file.exists():
             raise RunnerError(f"Input file {input_file} does not exist")
-        
+
         stdin_data = input_file.read_text()
         return self.run(executable, args, stdin_data=stdin_data, **kwargs)
-    
+
     def run_with_valgrind(
         self,
         executable: Path,
@@ -137,10 +137,10 @@ class CRunner:
     ) -> subprocess.CompletedProcess:
         """Run executable under valgrind."""
         import shutil
-        
+
         if not shutil.which("valgrind"):
             raise RunnerError("valgrind not found in PATH")
-        
+
         valgrind_cmd = ["valgrind"]
         if valgrind_args:
             valgrind_cmd.extend(valgrind_args)
@@ -152,11 +152,11 @@ class CRunner:
                 "--show-leak-kinds=all",
                 "--track-origins=yes"
             ])
-        
+
         valgrind_cmd.append(str(executable))
         if args:
             valgrind_cmd.extend(args)
-        
+
         # Run valgrind command directly
         try:
             result = subprocess.run(
@@ -167,12 +167,12 @@ class CRunner:
                 timeout=kwargs.get('timeout', self.timeout),
                 env=kwargs.get('env')
             )
-            
+
             return result
-            
+
         except subprocess.SubprocessError as e:
             raise RunnerError(f"Failed to run valgrind: {e}") from e
-    
+
     def _find_core_dump(self, program_name: str) -> Optional[Path]:
         """Find core dump file for a program."""
         # Common core dump patterns
@@ -182,15 +182,15 @@ class CRunner:
             "core",
             f"{program_name}.core"
         ]
-        
+
         for pattern in patterns:
             cores = list(self.work_dir.glob(pattern))
             if cores:
                 # Return the most recent core dump
                 return max(cores, key=lambda p: p.stat().st_mtime)
-        
+
         return None
-    
+
     def get_exit_code_meaning(self, returncode: int) -> str:
         """Get human-readable meaning of exit code."""
         if returncode == 0:
